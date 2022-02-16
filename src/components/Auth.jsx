@@ -4,6 +4,8 @@ import axios from 'axios'
 
 import SigninImage from '../assets/signup.jpg'
 
+const cookies = new Cookies()
+
 const initialState = {
     fullname: '',
     username: '',
@@ -18,7 +20,32 @@ const Auth = () => {
     const [isSignUp, setIsSignUp] = useState(true);
 
     const handleChange = (e) => {
-        setForm();
+        setForm({ ...form, [e.target.name]: e.target.value });
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+
+        const { fullname, username, password, phoneNumber, avatarURL } = form;
+
+        const URL = 'http://localhost:5000/auth';
+
+        const { data: { token, userId, hashedPassword } } = await axios.post(`${URL}/${isSignUp ? 'signup' : 'login'}`, {
+            username, password, fullname, phoneNumber, avatarURL
+        });
+
+        cookies.set('token', token);
+        cookies.set('username', username);
+        cookies.set('fullname', fullname);
+        cookies.set('userId', userId)
+
+        if (isSignUp) {
+            cookies.set('phoneNumber', phoneNumber);
+            cookies.set('avatarURL', avatarURL);
+            cookies.set('hashedPassword', hashedPassword);
+        }
+
+        window.location.reload()
     }
 
     const switchMode = () => {
@@ -29,11 +56,11 @@ const Auth = () => {
             <div className='auth__form-container_fields'>
                 <div className='auth__form-container_fields-content'>
                     <p>{isSignUp ? 'Sign Up' : 'Sign In'}</p>
-                    <form onSubmit={() => { }}>
+                    <form onSubmit={handleSubmit}>
                         {
                             isSignUp && (
                                 <div className='auth__form-container_fields-content_input'>
-                                    <label htmlFor='fullName'>Full Name</label>
+                                    <label htmlFor='fullname'>Full Name</label>
                                     <input name='fullname'
                                         type='text'
                                         placeholder='Full Name'
@@ -96,6 +123,10 @@ const Auth = () => {
 
                             )
                         }
+
+                        <div className='auth__form-container_fields-content_button'>
+                            <button>{isSignUp ? "Sign Up" : "Sign In"}</button>
+                        </div>
 
                     </form>
                     <div className='auth__form-container_fields-account'>
