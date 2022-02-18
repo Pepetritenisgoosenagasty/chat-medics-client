@@ -24,28 +24,29 @@ const Auth = () => {
     }
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
-        const { fullname, username, password, phoneNumber, avatarURL } = form;
+        const { username, password, phoneNumber, avatarURL } = form;
 
-        const URL = 'http://localhost:5000/auth';
+        const URL = 'https://localhost:5000/auth';
+        // const URL = 'https://medical-pager.herokuapp.com/auth';
 
-        const { data: { token, userId, hashedPassword } } = await axios.post(`${URL}/${isSignUp ? 'signup' : 'login'}`, {
-            username, password, fullname, phoneNumber, avatarURL
+        const { data: { token, userId, hashedPassword, fullname } } = await axios.post(`${URL}/${isSignUp ? 'signup' : 'login'}`, {
+            username, password, fullname: form.fullname, phoneNumber, avatarURL,
         });
 
         cookies.set('token', token);
         cookies.set('username', username);
         cookies.set('fullname', fullname);
-        cookies.set('userId', userId)
+        cookies.set('userId', userId);
 
-        if (isSignUp) {
+        if(isSignUp) {
             cookies.set('phoneNumber', phoneNumber);
             cookies.set('avatarURL', avatarURL);
             cookies.set('hashedPassword', hashedPassword);
         }
 
-        window.location.reload()
+        window.location.reload();
     }
 
     const switchMode = () => {
